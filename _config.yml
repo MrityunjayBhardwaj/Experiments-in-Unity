@@ -2,8 +2,8 @@ title: Collection of Experiments in Unity
 email: mrityunjaybhardwaj99@gmail.com
 description: Collection of Games and Interactive Experiences I've developed overtime.
 permalink: ':title/'
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://mrityunjay.ml/Games-and-Experiments/" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/Games-and-Experiments" # the subpath of your site, e.g. /blog
+url: "https://mrityunjay.ml" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Author settings
 author: Games and Experiments
