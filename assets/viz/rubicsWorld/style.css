@@ -1,0 +1,11 @@
+@import url('/assets/css/main.css');
+
+body {
+	background-color: var(--secondary-bg-color);
+}
+
+#videoContainer {
+
+	margin: 2em auto;
+	text-align: center;
+}

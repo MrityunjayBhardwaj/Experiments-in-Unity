@@ -1,0 +1,27 @@
+[
+  
+    {
+      "title"    : "Unity&#39;s ML Agents",
+      "category" : "",
+      "tags"     : "ML, AI, Reinforcement Learning, RL, Unity, Agents",
+      "url"      : "/reinforcement/learning/mlAgents.html",
+      "date"     : "2020-07-14 00:00:00 +0530"
+    } ,
+  
+    {
+      "title"    : "Rubic&#39;s World",
+      "category" : "",
+      "tags"     : "Ludum Dare, Game Jam, Unity, Rubics, World, Puzzle",
+      "url"      : "/games/rubicsWorld.html",
+      "date"     : "2017-07-14 00:00:00 +0530"
+    } ,
+  
+    {
+      "title"    : "UE4 - Horror Game Demo",
+      "category" : "",
+      "tags"     : "Ludum Dare, Game Jam, Unity, Rubics, World, Puzzle",
+      "url"      : "/games/horrorExpUE4.html",
+      "date"     : "2017-07-14 00:00:00 +0530"
+    } 
+  
+]

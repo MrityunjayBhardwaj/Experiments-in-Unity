@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-06-11T00:21:36+05:30</updated><id>http://localhost:4000/feed.xml</id><title type="html">Collection of Experiments in Unity</title><subtitle>Collection of Games and Interactive Experiences I've developed overtime.</subtitle><author><name>Games and Experiments</name></author><entry><title type="html">Unity’s ML Agents</title><link href="http://localhost:4000/reinforcement/learning/mlAgents.html" rel="alternate" type="text/html" title="Unity's ML Agents" /><published>2020-07-14T00:00:00+05:30</published><updated>2020-07-14T00:00:00+05:30</updated><id>http://localhost:4000/reinforcement/learning/mlAgents</id><content type="html" xml:base="http://localhost:4000/reinforcement/learning/mlAgents.html">&lt;ul&gt;
+  &lt;li&gt;Unlike DPs, Monte Carlo Methods rely solely on the sample sequences of states, actions, and reward obtained from the environment to calculate their value estimates by simply averaging the sample returns for each state-action pair.&lt;/li&gt;
+  &lt;li&gt;MC Methods computes/update there value estimates and policies after the end of each episode.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Advantage of using Monte Carlo Methods:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Doesn’t require complete knowledge of the environment&lt;/li&gt;
+  &lt;li&gt;Takes less memory&lt;/li&gt;
+  &lt;li&gt;Can compute optimal policies.&lt;/li&gt;
+  &lt;li&gt;unlike DPs, the computational expense of estimating the value of a single state is independent of the number of states.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;monte-carlo-prediction&quot;&gt;Monte Carlo Prediction&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;first-visit MC Method&lt;/strong&gt; estimates &lt;script type=&quot;math/tex&quot;&gt;v_\pi(s)&lt;/script&gt; as the average of the returns following first visits to &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt; at each episode.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Every-visit MC Method&lt;/strong&gt; simply averages the returns following all visits to &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt;.&lt;/li&gt;
+  &lt;li&gt;both of them converge to &lt;script type=&quot;math/tex&quot;&gt;v_\pi(s)&lt;/script&gt; as the number of visits (or first visits) to &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt; goes to infinity.&lt;/li&gt;
+  &lt;li&gt;ASIDE: we can verify the convergence in the case of first-visit MC Method by observing that &lt;em&gt;the first-visit MC Method the return is an i.i.d distributed estimate of &lt;script type=&quot;math/tex&quot;&gt;v_\pi(s)&lt;/script&gt; with finite variance&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;the MC-method is preferred over DPs even if we have complete knowledge of our environment because, in DP, all of the probabilities must be computed &lt;em&gt;before&lt;/em&gt; DP can be applied which requires a lot of computation.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;backup-diagram-of-mc-methods&quot;&gt;backup Diagram of MC-methods&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;for MC estimation of &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt;, the root is a state node, and below it is the entire trajectory of transitions in a particular episode, ending at the terminal state as shown in the fig below&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/monteCarlo/body/backupDiag.png&quot; width=&quot;400px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Monte Carlo methods &lt;em&gt;do not bootstrap&lt;/em&gt;!.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;monte-carlo-estimation-of-action-value&quot;&gt;Monte Carlo Estimation of Action Value&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Without a model of the environment its important to estimate the state-action pairs in order to estimate the policy.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Complication with estimating action-value:- it turns out that it’s hard to accurately estimate the state-action pairs because it can be the case that for some deterministic policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt; many state-action pairs may never be visited and hence we can’t average their returns which means we can’t improve our estimates of these action with experience…&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;exploring start&lt;/strong&gt;: we can tackle this issue, by specifying that the episodes start in a state-action pair and that * every pair has a nonzero probability of being selected as the start. * This guarantees that all state-action pairs will be visited an infinite number of times in the limit.&lt;/li&gt;
+  &lt;li&gt;alternatively, we can assure that all state-action pairs are encountered is to consider only policies that are stochastic with a non-zero probability of selecting all actions in each state.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;monte-carlo-control&quot;&gt;Monte Carlo Control&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;By following the same Generalized policy iteration method we can approximate optimal policies.
+    &lt;ul&gt;
+      &lt;li&gt;More precisely, we can perform policy evaluation by experiencing many episodes and approximate action-value function which will eventually lead to true action-value function.&lt;/li&gt;
+      &lt;li&gt;Whereas, the policy improvement is done by making the policy greedy with respect to the current value function and* because we have an action-value function we don’t need any model to construct our greedy policy *:- &lt;script type=&quot;math/tex&quot;&gt;\pi(s) = \operatorname{argmax}_a q(s, a)&lt;/script&gt;&lt;/li&gt;
+      &lt;li&gt;If we look at the policy improvement theorem we know that we will systematically get better and better policy and eventually, this entire process converges to the optimal policy.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;To assure convergence, we have to make 2 unlikely assumption
+    &lt;ul&gt;
+      &lt;li&gt;one was that the episodes have &lt;strong&gt;exploring starts&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;policy evaluation could be done with an infinite number of episodes.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;we can get rid of the second assumption by simply give up trying to complete the policy evaluation before returning to policy improvement.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;In-place value iteration&lt;/strong&gt;:- here, we take the above idea to extreme i.e, for every state we perform policy evaluation only once and then do policy improvement.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;for Monte-Carlo policy iteration we first generate the episode than after then we perform policy evaluation and the improvement at all the states visited in the episode by using there respective observed returns. (the full algorithm is given below)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/monteCarlo/body/MonteCarloESAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;monte-carlo-without-exploring-starts&quot;&gt;Monte Carlo without Exploring Starts.&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The only general way to ensure that all actions are selected infinitely often is for the agent to continue to select them.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;there are 2 approaches to ensure the above statement:-
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;On-policy methods&lt;/strong&gt;:- On-policy methods attempt to evaluate or improve the policy that is used to make decisions.&lt;/li&gt;
+      &lt;li&gt;&lt;strong&gt;Off-policy methods&lt;/strong&gt;: This method evaluates or improve a policy different from that used to generate the data.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In on-policy control methods the policy is generally &lt;em&gt;soft&lt;/em&gt; meaning that &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;(a|s) for all &lt;script type=&quot;math/tex&quot;&gt;s \in S&lt;/script&gt; and all &lt;script type=&quot;math/tex&quot;&gt;a \in \mathcal{A}(s)&lt;/script&gt;, but gradually shifted closer and closer to a deterministic optimal policy.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;since the GPI require only to move the policy towards a greedy policy we can improve our &lt;script type=&quot;math/tex&quot;&gt;\epsilon&lt;/script&gt;-soft policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt; by moving it only to an &lt;script type=&quot;math/tex&quot;&gt;\epsilon&lt;/script&gt;-greedy policy which is guaranteed to be better than or equal to &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/monteCarlo/body/onPolicyFirstVisitMCControlAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It’s important to note that in the limit, we only achieve the best policy among the &lt;script type=&quot;math/tex&quot;&gt;\epsilon&lt;/script&gt;-soft policies, but the advantage of this method is that we have completely eliminated the assumption of exploring starts.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;off-policy-prediction-via-importance-sampling&quot;&gt;Off-Policy Prediction via Importance Sampling&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The On-policy Method learns action values not for the optimal policy, but for a near-optimal policy that still explores.&lt;/li&gt;
+  &lt;li&gt;in Off-Policy Method we use &lt;em&gt;2 policy&lt;/em&gt; instead,
+    &lt;ul&gt;
+      &lt;li&gt;&lt;strong&gt;target Policy&lt;/strong&gt;: The policy we want to learn&lt;/li&gt;
+      &lt;li&gt;** behavior policy**: the policy used to generate behavior&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;because we have a different policy to generate our behavior we can make our policy such that it never assigns 0 probability to any action.&lt;/li&gt;
+  &lt;li&gt;because we have a different policy to generate our data the off-policy methods are &lt;em&gt;often of greater variance and slower to converge&lt;/em&gt;.&lt;/li&gt;
+  &lt;li&gt;We apply importance sampling to off-policy learning by weighting returns according to the relative probability of their trajectories occurring under the target and behavior policies, called the &lt;strong&gt;importance-sampling ratio&lt;/strong&gt;.&lt;/li&gt;
+  &lt;li&gt;To estimate &lt;script type=&quot;math/tex&quot;&gt;v_\pi(s)&lt;/script&gt;, we simply scale the returns by the ratios and average the results.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;V(s) = \frac{\sum_{t \in \mathit{T}(s) {\rho_t : T(t) -1 G_t}}}{|\mathit{T}(s)|}&lt;/script&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;When importance sampling is done as a simple average like above, its called &lt;strong&gt;ordinary importance sampling&lt;/strong&gt;
+    &lt;ul&gt;
+      &lt;li&gt;they are generally unbiased&lt;/li&gt;
+      &lt;li&gt;variance of the ratios can be unbounded&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;If we use weighted average to estimate our value function then its called &lt;strong&gt;weighted importance sampling&lt;/strong&gt;&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;V(s) \doteq \frac{\sum_{t \in \mathcal{T}(s)} \rho_{t: T(t)-1} G_{t}}{\sum_{t \in \mathcal{T}(s)} \rho_{t: T(t)-1}}&lt;/script&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;weighted importance sampling is biased although the bias converges asymptotically to zero.&lt;/li&gt;
+      &lt;li&gt;assuming returns are bounded then the variance of weighted importance sampling estimator converges to zero even if the variance of the ratios themselves is infinite&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;in practice, weighted importance sampling is strongly preferred then ordinary importance sampling.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/monteCarlo/body/importanceSamplingComparison.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;incremental-implementation-of-monte-carlo-prediction&quot;&gt;Incremental Implementation of Monte Carlo Prediction&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;For implementing on-policy MC prediction we can simply extend the technique described in section 2.4 where instead of averaging the rewards, we average “returns”.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;For Off policy MC prediction with Ordinary Importance Sampling, &lt;em&gt;we simply average the scaled returns&lt;/em&gt; instead of rewards&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In the case of weighted importance sampling we take the weighted average of our returns in order to calculate our value function:-
+instead of averaging the rewards, here, we average “returns”.&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;V_{n} \doteq \frac{\sum_{k=1}^{n-1} W_{k} G_{k}}{\sum_{k=1}^{n-1} W_{k}}, \quad n \geq 2&lt;/script&gt;
+
+    &lt;p&gt;and incrementally update our value function &lt;script type=&quot;math/tex&quot;&gt;V_n&lt;/script&gt; as we obtain &lt;script type=&quot;math/tex&quot;&gt;G_n&lt;/script&gt;. here, we need to maintain the record of &lt;script type=&quot;math/tex&quot;&gt;V_n&lt;/script&gt; as well as of the cumulative sum of the weights &lt;script type=&quot;math/tex&quot;&gt;C_n&lt;/script&gt;. which means our final update rule is:-&lt;/p&gt;
+
+    &lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;V_{n+1} \doteq V_{n}+\frac{W_{n}}{C_{n}}\left[G_{n}-V_{n}\right], \quad n \geq 1&lt;/script&gt;
+where, 
+&lt;script type=&quot;math/tex&quot;&gt;C_{n+1} \doteq C_{n}+W_{n+1}&lt;/script&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;We can apply this technique to the on-policy case as well, &lt;em&gt;simply by assuming the behavior and target policies to be equal&lt;/em&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/monteCarlo/body/offPolicyMCPrediction.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;off-policy-monte-carlo-control&quot;&gt;Off-policy Monte Carlo Control&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Off-policy MC Control follows the behavior policy while learning about and improving the target policy.&lt;/li&gt;
+  &lt;li&gt;the behavior policy must have a nonzero probability of selecting all actions that might be selected by the target policy i.e, * for convergence, it must be soft*.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/monteCarlo/body/offPolicyMCControl.png&quot; width=&quot;800px&quot; /&gt; 
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;em&gt;NOTE:&lt;/em&gt; if nongreedy actions are common in the actual policy then learning will be slow! which is the reason why we use alternative methods like TD learning etc.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Mrityunjay</name></author><category term="ML" /><category term="AI" /><category term="Reinforcement Learning" /><category term="RL" /><category term="Unity" /><category term="Agents" /><summary type="html">Unlike DPs, Monte Carlo Methods rely solely on the sample sequences of states, actions, and reward obtained from the environment to calculate their value estimates by simply averaging the sample returns for each state-action pair. MC Methods computes/update there value estimates and policies after the end of each episode.</summary></entry><entry><title type="html">UE4 - Horror Game Demo</title><link href="http://localhost:4000/games/horrorExpUE4.html" rel="alternate" type="text/html" title="UE4 - Horror Game Demo" /><published>2017-07-14T00:00:00+05:30</published><updated>2017-07-14T00:00:00+05:30</updated><id>http://localhost:4000/games/horrorExpUE4</id><content type="html" xml:base="http://localhost:4000/games/horrorExpUE4.html">&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Dynamic programming&lt;/strong&gt; (DP) is a collection of algorithms that can be used to compute optimal policies given a &lt;em&gt;perfect model of the environment&lt;/em&gt; as Markov Decision Process (MDP).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;all of the methods for calculating the optimal policies can be viewed as attempts to achieve much the same effect as DP only with less computation and without the assumption of a perfect model of the environment.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;policy-evaluation-prediction&quot;&gt;Policy Evaluation (Prediction)&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The process of calculating the state-value function &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; for an arbitrary policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt; is called &lt;strong&gt;policy evaluation&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;v_\pi(s) = \mathbb{E}_{\pi}\left[G_{t} | S_{t}=s\right] = \sum_{a} \pi(a|s) \sum_{s', r}{p(s', r | s, a)}{[ r + \gamma v_\pi (s')]}&lt;/script&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;the existence and uniqueness of &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; are guaranteed as long as either &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\gamma &lt; 1 %]]&gt;&lt;/script&gt; or eventual termination is guaranteed from all states under the policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The process of iteratively evaluating the value function from the initial approximation, &lt;script type=&quot;math/tex&quot;&gt;v_0&lt;/script&gt; is known as &lt;strong&gt;iterative policy evaluation&lt;/strong&gt; inwhich each successive approximation is obtained by using the bellman equation for &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; as an update rule:&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;v_{k+1}(s) =\sum_{a} \pi(a|s) \sum_{s', r}{p(s', r | s, a)}{[ r + \gamma v_k (s')]}&lt;/script&gt;
+
+    &lt;p&gt;In general, the sequence &lt;script type=&quot;math/tex&quot;&gt;v_0,v_1,..,&lt;/script&gt; of approximate value functions converges to &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;k \rightarrow \infty&lt;/script&gt;, here, we can think of a &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; as some fixed point.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In DP all the updates are called &lt;strong&gt;expected updates&lt;/strong&gt; because they are based on an expectation over all possible next states rather than on a sample next state.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The order in which states have their values updated during the sweep has a &lt;em&gt;significant influence on the rate of convergence&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Full algorithm of iterative policy evaluation&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/iterativePolicyEvalAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;policy-improvement&quot;&gt;Policy Improvement&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;The process of making a new policy that improves on an original policy, by making it greedy with respect to the value function of the original policy, is called &lt;strong&gt;policy improvement&lt;/strong&gt;.&lt;/p&gt;
+
+    &lt;p&gt;Suppose the new greedy policy, &lt;script type=&quot;math/tex&quot;&gt;\pi'&lt;/script&gt;  is as good as, but not better than the older policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;. then &lt;script type=&quot;math/tex&quot;&gt;v_\pi = v_\pi'&lt;/script&gt;, and from it follow that for all &lt;script type=&quot;math/tex&quot;&gt;s \in \mathcal{S}&lt;/script&gt;:
+  &lt;script type=&quot;math/tex&quot;&gt;v_{\pi'}(s) =\max_a \sum_{s', r}{p(s', r | s, a)}{[ r + \gamma v_{\pi'} (s')]}&lt;/script&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;one way of assessing whether our current policy can be improved is by considering a setting in which we select a specific action &lt;script type=&quot;math/tex&quot;&gt;a&lt;/script&gt; in-state &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt; and thereafter following the existing policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;. now, if we observe an improvement in expected return by selecting the action &lt;script type=&quot;math/tex&quot;&gt;a&lt;/script&gt; every time we are in state &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt;  then this new policy would in fact be a better one overall.&lt;/p&gt;
+
+    &lt;p&gt;we can formalize this idea by considering any pair of deterministic policies such that, for all &lt;script type=&quot;math/tex&quot;&gt;s \in \mathcal{S}&lt;/script&gt; in which :&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;q_\pi(s, \pi'(s)) \geq v_\pi(s)&lt;/script&gt;
+
+    &lt;p&gt;then the &lt;strong&gt;policy improvement theorem&lt;/strong&gt; states that the policy &lt;script type=&quot;math/tex&quot;&gt;\pi'&lt;/script&gt; must be as good as, or better than , &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;. that is it must obtain greater or equal expected return from all states &lt;script type=&quot;math/tex&quot;&gt;s \in \mathcal{S}&lt;/script&gt; i.e, &lt;script type=&quot;math/tex&quot;&gt;v_{\pi'} \geq v_\pi(s)&lt;/script&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;policy-iteration&quot;&gt;Policy Iteration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;if we combine both the policy evaluation and improvement then we can obtain a sequence of monotonically improving policies and value functions and eventually converge to an optimal policy, this iterative process is known as &lt;strong&gt;policy iteration&lt;/strong&gt;:-&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;\pi_{0} \stackrel{\mathrm{E}}{\longrightarrow} v_{\pi_{0}} \stackrel{\mathrm{I}}{\longrightarrow} \pi_{1} \stackrel{\mathrm{E}}{\longrightarrow} v_{\pi_{1}} \stackrel{\mathrm{I}}{\longrightarrow} \pi_{2} \stackrel{\mathrm{E}}{\longrightarrow} \cdots \stackrel{\mathrm{I}}{\longrightarrow} \pi_{*} \stackrel{\mathrm{E}}{\longrightarrow} v_{*}&lt;/script&gt;
+
+    &lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\stackrel{\mathrm{E}}{\longrightarrow}&lt;/script&gt; denotes a policy evaluation and &lt;script type=&quot;math/tex&quot;&gt;\stackrel{\mathrm{I}}{\longrightarrow}&lt;/script&gt; denotes a policy improvement.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Each policy is guaranteed to be a strict improvement over the previous one (unless it is already optimal). Because a finite MDP has only a finite number of policies, this process must converge to an optimal policy and the optimal value function in a finite number of iterations. --&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/PolicyIterAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;value-iteration&quot;&gt;Value Iteration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;if we stop the policy evaluation loop after just one sweep and combine it with the policy improvement what we endup with, is the &lt;strong&gt;value iteration method&lt;/strong&gt;. it can be written as a simple update operation that combines both the operations stated earlier:-&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{aligned}
+v_{k+1}(s) &amp; \doteq \max _{a} \mathbb{E}\left[R_{t+1}+\gamma v_{k}\left(S_{t+1}\right) | S_{t}=s, A_{t}=a\right] \\
+&amp;=\max _{a} \sum_{s^{\prime}, r} p\left(s^{\prime}, r | s, a\right)\left[r+\gamma v_{k}\left(s^{\prime}\right)\right]
+\end{aligned} %]]&gt;&lt;/script&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/ValueIterAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;asynchronous-dynamic-programming&quot;&gt;Asynchronous Dynamic Programming&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Async algorithms update the values of states &lt;em&gt;in any order whatsoever, using whatever values of other states happen to be available&lt;/em&gt;.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;avoiding sweeps doesn’t mean less computation, it just means that now, because we are not bounded by any specific way of selecting a state to update we can now put more emphasis on those states which leads to the optimal solution and update them more frequently and put less emphasis on regions of the environment which are not that important&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;an extreme case of the above assertion is that we can run an iterative DP algorithm at the same time that an agent is “actually” experiencing the MDP.i.e, we can update those states which we are currently visiting.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;generalized-policy-iteration&quot;&gt;Generalized Policy Iteration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We use the term generalized policy iteration (GPI) to refer to the general idea of letting policy-evaluation and improvement process interact, independent of the granularity and other details of the 2 processes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;span&gt;
+        &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/coordinateAscent.png&quot; width=&quot;300px&quot; /&gt;
+    &lt;/span&gt;
+    &lt;span&gt;
+        &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/policyIterLoop.png&quot; width=&quot;200px&quot; /&gt;
+    &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;now, if we keep running both the processes then in theory, they stabilize only when a policy has been found that is greedy with respect to its own evaluation function i.e, we can’t improve it further, this implies that the Bellman optimality equation holds and thus that policy and the value function are optimal.&lt;/li&gt;
+  &lt;li&gt;We can also think of these 2 steps as optimizing for 2 different goals but if we combine both. then, the ultimate goal is to reach &lt;script type=&quot;math/tex&quot;&gt;v_*&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\pi_*&lt;/script&gt; that’s where these 2 processes converge eventually.–&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Mrityunjay</name></author><category term="Ludum Dare" /><category term="Game Jam" /><category term="Unity" /><category term="Rubics" /><category term="World" /><category term="Puzzle" /><summary type="html"></summary></entry><entry><title type="html">Rubic’s World</title><link href="http://localhost:4000/games/rubicsWorld.html" rel="alternate" type="text/html" title="Rubic's World" /><published>2017-07-14T00:00:00+05:30</published><updated>2017-07-14T00:00:00+05:30</updated><id>http://localhost:4000/games/rubicsWorld</id><content type="html" xml:base="http://localhost:4000/games/rubicsWorld.html">&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Dynamic programming&lt;/strong&gt; (DP) is a collection of algorithms that can be used to compute optimal policies given a &lt;em&gt;perfect model of the environment&lt;/em&gt; as Markov Decision Process (MDP).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;all of the methods for calculating the optimal policies can be viewed as attempts to achieve much the same effect as DP only with less computation and without the assumption of a perfect model of the environment.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;policy-evaluation-prediction&quot;&gt;Policy Evaluation (Prediction)&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The process of calculating the state-value function &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; for an arbitrary policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt; is called &lt;strong&gt;policy evaluation&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;v_\pi(s) = \mathbb{E}_{\pi}\left[G_{t} | S_{t}=s\right] = \sum_{a} \pi(a|s) \sum_{s', r}{p(s', r | s, a)}{[ r + \gamma v_\pi (s')]}&lt;/script&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;the existence and uniqueness of &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; are guaranteed as long as either &lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\gamma &lt; 1 %]]&gt;&lt;/script&gt; or eventual termination is guaranteed from all states under the policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The process of iteratively evaluating the value function from the initial approximation, &lt;script type=&quot;math/tex&quot;&gt;v_0&lt;/script&gt; is known as &lt;strong&gt;iterative policy evaluation&lt;/strong&gt; inwhich each successive approximation is obtained by using the bellman equation for &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; as an update rule:&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;v_{k+1}(s) =\sum_{a} \pi(a|s) \sum_{s', r}{p(s', r | s, a)}{[ r + \gamma v_k (s')]}&lt;/script&gt;
+
+    &lt;p&gt;In general, the sequence &lt;script type=&quot;math/tex&quot;&gt;v_0,v_1,..,&lt;/script&gt; of approximate value functions converges to &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;k \rightarrow \infty&lt;/script&gt;, here, we can think of a &lt;script type=&quot;math/tex&quot;&gt;v_\pi&lt;/script&gt; as some fixed point.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;In DP all the updates are called &lt;strong&gt;expected updates&lt;/strong&gt; because they are based on an expectation over all possible next states rather than on a sample next state.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The order in which states have their values updated during the sweep has a &lt;em&gt;significant influence on the rate of convergence&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Full algorithm of iterative policy evaluation&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/iterativePolicyEvalAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;policy-improvement&quot;&gt;Policy Improvement&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;The process of making a new policy that improves on an original policy, by making it greedy with respect to the value function of the original policy, is called &lt;strong&gt;policy improvement&lt;/strong&gt;.&lt;/p&gt;
+
+    &lt;p&gt;Suppose the new greedy policy, &lt;script type=&quot;math/tex&quot;&gt;\pi'&lt;/script&gt;  is as good as, but not better than the older policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;. then &lt;script type=&quot;math/tex&quot;&gt;v_\pi = v_\pi'&lt;/script&gt;, and from it follow that for all &lt;script type=&quot;math/tex&quot;&gt;s \in \mathcal{S}&lt;/script&gt;:
+  &lt;script type=&quot;math/tex&quot;&gt;v_{\pi'}(s) =\max_a \sum_{s', r}{p(s', r | s, a)}{[ r + \gamma v_{\pi'} (s')]}&lt;/script&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;one way of assessing whether our current policy can be improved is by considering a setting in which we select a specific action &lt;script type=&quot;math/tex&quot;&gt;a&lt;/script&gt; in-state &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt; and thereafter following the existing policy &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;. now, if we observe an improvement in expected return by selecting the action &lt;script type=&quot;math/tex&quot;&gt;a&lt;/script&gt; every time we are in state &lt;script type=&quot;math/tex&quot;&gt;s&lt;/script&gt;  then this new policy would in fact be a better one overall.&lt;/p&gt;
+
+    &lt;p&gt;we can formalize this idea by considering any pair of deterministic policies such that, for all &lt;script type=&quot;math/tex&quot;&gt;s \in \mathcal{S}&lt;/script&gt; in which :&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;q_\pi(s, \pi'(s)) \geq v_\pi(s)&lt;/script&gt;
+
+    &lt;p&gt;then the &lt;strong&gt;policy improvement theorem&lt;/strong&gt; states that the policy &lt;script type=&quot;math/tex&quot;&gt;\pi'&lt;/script&gt; must be as good as, or better than , &lt;script type=&quot;math/tex&quot;&gt;\pi&lt;/script&gt;. that is it must obtain greater or equal expected return from all states &lt;script type=&quot;math/tex&quot;&gt;s \in \mathcal{S}&lt;/script&gt; i.e, &lt;script type=&quot;math/tex&quot;&gt;v_{\pi'} \geq v_\pi(s)&lt;/script&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;policy-iteration&quot;&gt;Policy Iteration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;if we combine both the policy evaluation and improvement then we can obtain a sequence of monotonically improving policies and value functions and eventually converge to an optimal policy, this iterative process is known as &lt;strong&gt;policy iteration&lt;/strong&gt;:-&lt;/p&gt;
+
+    &lt;script type=&quot;math/tex; mode=display&quot;&gt;\pi_{0} \stackrel{\mathrm{E}}{\longrightarrow} v_{\pi_{0}} \stackrel{\mathrm{I}}{\longrightarrow} \pi_{1} \stackrel{\mathrm{E}}{\longrightarrow} v_{\pi_{1}} \stackrel{\mathrm{I}}{\longrightarrow} \pi_{2} \stackrel{\mathrm{E}}{\longrightarrow} \cdots \stackrel{\mathrm{I}}{\longrightarrow} \pi_{*} \stackrel{\mathrm{E}}{\longrightarrow} v_{*}&lt;/script&gt;
+
+    &lt;p&gt;where &lt;script type=&quot;math/tex&quot;&gt;\stackrel{\mathrm{E}}{\longrightarrow}&lt;/script&gt; denotes a policy evaluation and &lt;script type=&quot;math/tex&quot;&gt;\stackrel{\mathrm{I}}{\longrightarrow}&lt;/script&gt; denotes a policy improvement.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Each policy is guaranteed to be a strict improvement over the previous one (unless it is already optimal). Because a finite MDP has only a finite number of policies, this process must converge to an optimal policy and the optimal value function in a finite number of iterations. --&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/PolicyIterAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;value-iteration&quot;&gt;Value Iteration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;if we stop the policy evaluation loop after just one sweep and combine it with the policy improvement what we endup with, is the &lt;strong&gt;value iteration method&lt;/strong&gt;. it can be written as a simple update operation that combines both the operations stated earlier:-&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{aligned}
+v_{k+1}(s) &amp; \doteq \max _{a} \mathbb{E}\left[R_{t+1}+\gamma v_{k}\left(S_{t+1}\right) | S_{t}=s, A_{t}=a\right] \\
+&amp;=\max _{a} \sum_{s^{\prime}, r} p\left(s^{\prime}, r | s, a\right)\left[r+\gamma v_{k}\left(s^{\prime}\right)\right]
+\end{aligned} %]]&gt;&lt;/script&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/ValueIterAlgo.png&quot; width=&quot;800px&quot; /&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;asynchronous-dynamic-programming&quot;&gt;Asynchronous Dynamic Programming&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Async algorithms update the values of states &lt;em&gt;in any order whatsoever, using whatever values of other states happen to be available&lt;/em&gt;.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;avoiding sweeps doesn’t mean less computation, it just means that now, because we are not bounded by any specific way of selecting a state to update we can now put more emphasis on those states which leads to the optimal solution and update them more frequently and put less emphasis on regions of the environment which are not that important&lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;an extreme case of the above assertion is that we can run an iterative DP algorithm at the same time that an agent is “actually” experiencing the MDP.i.e, we can update those states which we are currently visiting.&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;generalized-policy-iteration&quot;&gt;Generalized Policy Iteration&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We use the term generalized policy iteration (GPI) to refer to the general idea of letting policy-evaluation and improvement process interact, independent of the granularity and other details of the 2 processes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div style=&quot;margin: 0 auto; text-align: center&quot;&gt;
+    &lt;span&gt;
+        &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/coordinateAscent.png&quot; width=&quot;300px&quot; /&gt;
+    &lt;/span&gt;
+    &lt;span&gt;
+        &lt;img src=&quot;http://localhost:4000/assets/img/posts_imgs/dynProg/body/policyIterLoop.png&quot; width=&quot;200px&quot; /&gt;
+    &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;now, if we keep running both the processes then in theory, they stabilize only when a policy has been found that is greedy with respect to its own evaluation function i.e, we can’t improve it further, this implies that the Bellman optimality equation holds and thus that policy and the value function are optimal.&lt;/li&gt;
+  &lt;li&gt;We can also think of these 2 steps as optimizing for 2 different goals but if we combine both. then, the ultimate goal is to reach &lt;script type=&quot;math/tex&quot;&gt;v_*&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;\pi_*&lt;/script&gt; that’s where these 2 processes converge eventually.–&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>Mrityunjay</name></author><category term="Ludum Dare" /><category term="Game Jam" /><category term="Unity" /><category term="Rubics" /><category term="World" /><category term="Puzzle" /><summary type="html"></summary></entry></feed>
