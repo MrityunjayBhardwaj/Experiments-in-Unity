@@ -20,7 +20,7 @@ In a Nutshell, The ML-Agents Toolkit Low Level API is a Python API for controlli
 I started by playing with the roller ball project comes with the package and then eventually stumble upon some tutorials you can use to create custom environments for you agent, you can even use [tensorboard](https://www.tensorflow.org/tensorboard) to track you experiments! 
 
 <div style="margin: 0 auto; text-align: center">
-    <img src="{{site.url}}/assets/img/posts_imgs/mlAgents/body/1.png"  width="800px" />
+    <img src="{{site.url}}/{{site.baseurl}}/assets/img/posts_imgs/mlAgents/body/1.png"  width="800px" />
 </div>
 
 then i finally created a custom environment using WRLD3d and the results looks promising..
