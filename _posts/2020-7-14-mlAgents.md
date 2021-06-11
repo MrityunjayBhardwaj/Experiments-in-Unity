@@ -26,7 +26,7 @@ I started by playing with the roller ball project comes with the package and the
 then i finally created a custom environment using WRLD3d and the results looks promising..
 
 <div style="margin: 0 auto; text-align: center">
-    <img src="{{site.url}}/assets/img/posts_imgs/mlAgents/body/2.png"  width="800px" />
+    <img src="{{site.url}}/{{site.baseurl}}/assets/img/posts_imgs/mlAgents/body/2.png"  width="800px" />
 </div>
 
 Currently, I am working On some more Environments which i'll share, once its presentable... till then, happy learning!
